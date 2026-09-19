@@ -281,15 +281,32 @@ label {
   font-size: 0.9rem;
 }
 
-/* QR / join */
-.session-header {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
+/* Session layout: narrow sidebar (join mechanics) + wide main column (what
+   the class is actually looking at — round controls and the reveal). */
+.session-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+  align-items: start;
+  margin-top: 16px;
 }
 
+.session-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.session-sidebar .card,
+.session-sidebar .card--tint {
+  margin-bottom: 0;
+}
+
+.session-main {
+  min-width: 0;
+}
+
+/* QR / join */
 .qr-box {
   background: var(--white);
   border-radius: var(--radius);
@@ -486,10 +503,13 @@ label {
   margin-top: 32px;
 }
 
-@media (max-width: 600px) {
-  .session-header {
-    flex-direction: column;
+@media (max-width: 800px) {
+  .session-layout {
+    grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 600px) {
   .join-code {
     font-size: 1.6rem;
   }
