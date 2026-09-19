@@ -1,0 +1,31 @@
+rules_version = '2';
+
+// Sentence Builder — Live Round Tool
+// Deliberately open: no PIN, no auth. Access control is "the host link is
+// never shared," not anything enforced here. Scoped strictly to the two
+// top-level collections this app owns so it doesn't touch anything else
+// that may live in this shared/repurposed project.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /games/{gameId} {
+      allow read, write: if true;
+    }
+
+    match /sessions/{sessionId} {
+      allow read, write: if true;
+
+      match /players/{playerId} {
+        allow read, write: if true;
+      }
+
+      match /rounds/{roundId} {
+        allow read, write: if true;
+
+        match /submissions/{playerId} {
+          allow read, write: if true;
+        }
+      }
+    }
+  }
+}

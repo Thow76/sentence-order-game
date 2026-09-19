@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentence Builder — Host</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+
+<div class="page page--wide">
+  <header class="app-header">
+    <h1>Sentence Builder — Host</h1>
+    <span class="badge">Live Round Tool</span>
+  </header>
+
+  <!-- ===================== LIBRARY VIEW ===================== -->
+  <section id="view-library">
+    <div class="row row--between">
+      <h2>Saved games</h2>
+      <button id="btn-new-game">+ New game</button>
+    </div>
+    <div id="game-list" class="game-list"></div>
+  </section>
+
+  <!-- ===================== GAME EDITOR VIEW ===================== -->
+  <section id="view-editor" class="hidden">
+    <h2 id="editor-title">New game</h2>
+    <div class="field">
+      <label for="game-name-input">Game name</label>
+      <input type="text" id="game-name-input" placeholder="e.g. Transport — Build the sentence">
+    </div>
+    <div id="sentence-rows"></div>
+    <button id="btn-add-sentence" class="secondary" type="button">+ Add sentence</button>
+    <div class="row" style="margin-top:20px;">
+      <button id="btn-save-game">Save game</button>
+      <button id="btn-cancel-editor" class="secondary" type="button">Cancel</button>
+    </div>
+  </section>
+
+  <!-- ===================== SESSION VIEW (lobby / round / reveal) ===================== -->
+  <section id="view-session" class="hidden">
+    <div class="row row--between">
+      <h2 id="session-game-name"></h2>
+      <button id="btn-end-session" class="danger">End session</button>
+    </div>
+
+    <!-- Lobby: QR + join code + roster, before round 1 -->
+    <div id="session-lobby">
+      <div class="session-header">
+        <div class="qr-box">
+          <canvas id="qr-canvas"></canvas>
+          <p class="muted" style="margin-top:8px; font-size:0.85rem;">Scan to join</p>
+        </div>
+        <div class="card--tint card" style="flex:1; min-width:220px;">
+          <div class="muted">Join code</div>
+          <div class="join-code" id="join-code-display"></div>
+          <p class="muted" style="font-size:0.85rem;">Learners can also open the site and type this code.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row row--between" style="margin-top:20px;">
+      <div>
+        <span class="badge" id="round-indicator">Waiting to start</span>
+        <span class="badge badge--muted" id="submit-count"></span>
+      </div>
+      <div class="row">
+        <button id="btn-start-round">Start round 1</button>
+        <button id="btn-reveal" class="secondary hidden">Reveal</button>
+        <button id="btn-next-round" class="hidden">Next round</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h3>Roster <span class="muted" id="roster-count"></span></h3>
+      <div id="roster" class="roster"></div>
+      <p id="roster-empty" class="muted">No one has joined yet.</p>
+    </div>
+
+    <!-- Reveal -->
+    <div id="reveal-panel" class="card hidden" style="margin-top:16px;">
+      <div class="row row--between">
+        <h3>Reveal — round <span id="reveal-round-num"></span></h3>
+        <span class="tally" id="reveal-tally"></span>
+      </div>
+      <p class="muted">Correct sentence: <strong id="reveal-correct"></strong></p>
+      <div id="reveal-list" class="reveal-list"></div>
+    </div>
+  </section>
+
+  <p class="footer-note">Host link — keep this private. Don't post or share it with learners.</p>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script type="module" src="assets/host.js"></script>
+</body>
+</html>

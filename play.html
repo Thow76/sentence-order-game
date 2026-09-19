@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentence Builder</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="page">
+  <header class="app-header">
+    <h1>Sentence Builder</h1>
+  </header>
+
+  <!-- ===================== JOIN VIEW ===================== -->
+  <section id="view-join">
+    <div class="card">
+      <div id="join-code-entry">
+        <h2>Enter join code</h2>
+        <p class="muted">Ask your tutor for the 5-letter code, or scan the QR code they showed.</p>
+        <div class="field">
+          <input type="text" id="join-code-input" placeholder="e.g. AB3XZ" maxlength="8" autocapitalize="characters">
+        </div>
+        <button id="btn-join-code">Continue</button>
+      </div>
+
+      <div id="nickname-entry" class="hidden">
+        <h2>What's your name?</h2>
+        <div class="field">
+          <input type="text" id="nickname-input" placeholder="Your name" maxlength="30" autofocus>
+        </div>
+        <button id="btn-join-nickname">Join</button>
+
+        <div id="resume-check" class="hidden" style="margin-top:16px;">
+          <p><strong id="resume-name"></strong> is already in this class. Is this you?</p>
+          <div class="nickname-suggestion">
+            <button id="btn-resume-yes">Yes, that's me</button>
+            <button id="btn-resume-no" class="secondary">No, I'm someone else</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WAITING VIEW ===================== -->
+  <section id="view-waiting" class="hidden">
+    <div class="waiting-screen">
+      <div class="spinner"></div>
+      <h2 id="waiting-title">You're in!</h2>
+      <p class="muted" id="waiting-subtitle">Waiting for the tutor to start round 1…</p>
+    </div>
+  </section>
+
+  <!-- ===================== BUILD VIEW ===================== -->
+  <section id="view-build" class="hidden">
+    <div class="row row--between">
+      <span class="badge" id="build-round-badge"></span>
+      <span class="badge badge--muted" id="build-name-badge"></span>
+    </div>
+    <h2 style="margin-top:16px;">Build the sentence</h2>
+    <p class="muted">Tap the words in the right order. Tap a placed word to remove it.</p>
+
+    <div id="tile-area" class="tile-area"></div>
+    <div id="tile-pool" class="tile-pool"></div>
+
+    <button id="btn-submit" disabled>Submit</button>
+  </section>
+
+  <!-- ===================== SUBMITTED / REVEALED VIEW ===================== -->
+  <section id="view-submitted" class="hidden">
+    <div class="waiting-screen">
+      <h2 id="submitted-title">Submitted!</h2>
+      <p class="muted" id="submitted-subtitle">Waiting for the rest of the class…</p>
+      <div class="tile-pool" id="submitted-sentence" style="justify-content:center; margin-top:20px;"></div>
+    </div>
+  </section>
+
+  <!-- ===================== SESSION ENDED VIEW ===================== -->
+  <section id="view-ended" class="hidden">
+    <div class="card center">
+      <h2>Session ended</h2>
+      <p class="muted">This session has finished. Ask your tutor for a new join code if you need to rejoin.</p>
+    </div>
+  </section>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script type="module" src="assets/play.js"></script>
+</body>
+</html>
