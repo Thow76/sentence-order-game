@@ -298,9 +298,12 @@ label {
   border: 1px solid var(--border);
 }
 
-.qr-box canvas {
+.qr-box img {
   display: block;
   margin: 0 auto;
+  width: 200px;
+  height: 200px;
+  image-rendering: pixelated;
 }
 
 .join-code {

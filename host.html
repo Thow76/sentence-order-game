@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sentence Builder — Host</title>
 <link rel="stylesheet" href="assets/style.css">
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -50,7 +49,7 @@
     <div id="session-lobby">
       <div class="session-header">
         <div class="qr-box">
-          <canvas id="qr-canvas"></canvas>
+          <img id="qr-image" alt="QR code to join this session" width="200" height="200">
           <p class="muted" style="margin-top:8px; font-size:0.85rem;">Scan to join</p>
         </div>
         <div class="card--tint card" style="flex:1; min-width:220px;">

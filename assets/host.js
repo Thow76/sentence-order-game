@@ -7,6 +7,7 @@ import {
   autoSplitTiles, manualSplitTiles, tilesToSentence, shuffleTileOrder,
   arraysEqual, randomJoinCode, escapeHtml,
 } from './shared.js';
+import { qrcode } from './qrcode.js';
 
 // ---------- DOM refs ----------
 const viewLibrary = document.getElementById('view-library');
@@ -264,10 +265,12 @@ async function enterSessionView(sessionId, gameHint) {
   // QR code — encodes play.html with this session id, resolved relative to
   // wherever host.html itself is served from (works under any Pages base path).
   const joinUrl = new URL(`play.html?session=${sessionId}`, window.location.href).toString();
-  const qrCanvas = document.getElementById('qr-canvas');
-  if (window.QRCode) {
-    QRCode.toCanvas(qrCanvas, joinUrl, { width: 200, margin: 1, color: { dark: '#1E293B', light: '#ffffff' } });
-  }
+  const qrImg = document.getElementById('qr-image');
+  const qr = qrcode(0, 'M'); // 0 = auto-pick the smallest QR version that fits
+  qr.addData(joinUrl);
+  qr.make();
+  qrImg.src = qr.createDataURL(6, 8);
+  qrImg.alt = `QR code to join — ${joinUrl}`;
 
   currentRound = -1;
   currentPhase = 'lobby';
