@@ -76,11 +76,22 @@
     </div>
   </section>
 
-  <!-- ===================== SESSION ENDED VIEW ===================== -->
+  <!-- ===================== SESSION ENDED (not found / never joined) VIEW ===================== -->
   <section id="view-ended" class="hidden">
     <div class="card center">
       <h2>Session ended</h2>
       <p class="muted">This session has finished. Ask your tutor for a new join code if you need to rejoin.</p>
+    </div>
+  </section>
+
+  <!-- ===================== FINAL SCORE VIEW (tutor ended a session you played) ===================== -->
+  <section id="view-score" class="hidden">
+    <div class="score-screen">
+      <h2>Score</h2>
+      <div class="score-line score-line--correct"><span id="score-correct">0</span> correct</div>
+      <div class="score-line score-line--incorrect"><span id="score-incorrect">0</span> incorrect</div>
+      <button id="btn-close-score" class="score-close-btn" aria-label="Close">&times;</button>
+      <p id="score-close-note" class="muted hidden" style="font-size:0.85rem;">You can now close this tab.</p>
     </div>
   </section>
 </div>

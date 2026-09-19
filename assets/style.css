@@ -483,6 +483,55 @@ label {
   margin-top: 10px;
 }
 
+/* Final score screen (learner side, shown once the tutor ends the session) */
+.score-screen {
+  max-width: 320px;
+  margin: 48px auto 0;
+  padding: 32px 24px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.score-screen h2 {
+  margin: 0;
+}
+
+.score-line {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.score-line--correct {
+  color: var(--success);
+}
+
+.score-line--incorrect {
+  color: var(--error);
+}
+
+.score-close-btn {
+  margin-top: 10px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 1.6rem;
+  line-height: 1;
+  background: var(--white);
+  color: var(--accent);
+  border: 2px solid var(--accent);
+}
+
+.score-close-btn:hover {
+  background: var(--tint);
+}
+
 .toast {
   position: fixed;
   bottom: 20px;

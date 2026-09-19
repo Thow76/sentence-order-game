@@ -3,7 +3,7 @@ import {
   collection, doc, addDoc, setDoc, getDoc, getDocs, onSnapshot, query, where, limit,
   serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { suffixName, escapeHtml } from './shared.js';
+import { suffixName, escapeHtml, arraysEqual } from './shared.js';
 
 // ---------- DOM refs ----------
 const viewJoin = document.getElementById('view-join');
@@ -11,6 +11,7 @@ const viewWaiting = document.getElementById('view-waiting');
 const viewBuild = document.getElementById('view-build');
 const viewSubmitted = document.getElementById('view-submitted');
 const viewEnded = document.getElementById('view-ended');
+const viewScore = document.getElementById('view-score');
 
 const joinCodeEntry = document.getElementById('join-code-entry');
 const joinCodeInput = document.getElementById('join-code-input');
@@ -36,6 +37,11 @@ const btnSubmit = document.getElementById('btn-submit');
 const submittedSubtitle = document.getElementById('submitted-subtitle');
 const submittedSentence = document.getElementById('submitted-sentence');
 
+const scoreCorrectEl = document.getElementById('score-correct');
+const scoreIncorrectEl = document.getElementById('score-incorrect');
+const btnCloseScore = document.getElementById('btn-close-score');
+const scoreCloseNote = document.getElementById('score-close-note');
+
 const toastEl = document.getElementById('toast');
 
 function toast(msg) {
@@ -50,6 +56,7 @@ function showView(name) {
   viewBuild.classList.toggle('hidden', name !== 'build');
   viewSubmitted.classList.toggle('hidden', name !== 'submitted');
   viewEnded.classList.toggle('hidden', name !== 'ended');
+  viewScore.classList.toggle('hidden', name !== 'score');
 }
 
 // ---------- state ----------
@@ -60,9 +67,11 @@ let game = null; // {id, name, sentences}
 let currentRound = -1;
 let builtOrder = []; // tile ids the player has tapped, in order
 let pendingNewName = null; // used while resume-check is showing
+let tally = { rounds: {}, correct: 0, incorrect: 0 }; // this player's running score
 
 function storageKey(sid) { return `sog_player_${sid}`; }
 function draftKey(sid, round) { return `sog_draft_${sid}_${round}`; }
+function tallyKey(sid) { return `sog_tally_${sid}`; }
 
 function saveLocalPlayer(sid, pid, name) {
   try { localStorage.setItem(storageKey(sid), JSON.stringify({ playerId: pid, name })); } catch (e) { /* ignore */ }
@@ -87,6 +96,19 @@ function loadDraft(sid, round) {
 }
 function clearDraft(sid, round) {
   try { localStorage.removeItem(draftKey(sid, round)); } catch (e) { /* ignore */ }
+}
+
+// Running per-round correct/incorrect tally, kept client-side because round
+// and submission data is deleted from Firestore as soon as the tutor ends
+// the session — by then it's too late to compute a score from the server.
+function loadTally(sid) {
+  try {
+    const raw = localStorage.getItem(tallyKey(sid));
+    return raw ? JSON.parse(raw) : { rounds: {}, correct: 0, incorrect: 0 };
+  } catch (e) { return { rounds: {}, correct: 0, incorrect: 0 }; }
+}
+function saveTally(sid, tally) {
+  try { localStorage.setItem(tallyKey(sid), JSON.stringify(tally)); } catch (e) { /* ignore */ }
 }
 
 // =========================================================
@@ -126,8 +148,18 @@ btnJoinCode.addEventListener('click', async () => {
 async function beginJoinFlow(sid) {
   const sessSnap = await getDoc(doc(db, 'sessions', sid));
   if (!sessSnap.exists()) {
-    showView('ended');
+    // The session was already ended (or never existed). If we have a saved
+    // tally from actually having played it, show the score instead of a
+    // generic message — reopening the tab shouldn't lose your result.
+    const savedTally = loadTally(sid);
     clearLocalPlayer(sid);
+    if (Object.keys(savedTally.rounds).length > 0) {
+      sessionId = sid; // showScoreView() clears this session's storage by id
+      tally = savedTally;
+      showScoreView();
+    } else {
+      showView('ended');
+    }
     return;
   }
 
@@ -209,6 +241,7 @@ async function createPlayerAndProceed(typedName, existingPlayers) {
 // =========================================================
 async function attachAndListen() {
   buildNameBadge.textContent = playerName;
+  tally = loadTally(sessionId);
 
   const sessSnap = await getDoc(doc(db, 'sessions', sessionId));
   if (!sessSnap.exists()) { showView('ended'); return; }
@@ -218,8 +251,7 @@ async function attachAndListen() {
 
   onSnapshot(doc(db, 'sessions', sessionId), async (snap) => {
     if (!snap.exists()) {
-      clearLocalPlayer(sessionId);
-      showView('ended');
+      showScoreView();
       return;
     }
     const data = snap.data();
@@ -234,6 +266,7 @@ async function attachAndListen() {
 
     if (data.phase === 'revealed') {
       const already = await getSubmission(currentRound);
+      await tallyRoundIfNeeded(currentRound, already);
       showSubmittedView(currentRound, already, true);
       return;
     }
@@ -247,6 +280,36 @@ async function attachAndListen() {
     }
   });
 }
+
+// Records this round's correct/incorrect result exactly once, the first
+// time we see it revealed — a missing submission counts as incorrect.
+async function tallyRoundIfNeeded(round, submission) {
+  if (tally.rounds[round]) return;
+  const correctOrder = game.sentences[round].tiles.map(t => t.id);
+  const isCorrect = !!submission && arraysEqual(submission.order, correctOrder);
+  tally.rounds[round] = isCorrect ? 'correct' : 'incorrect';
+  if (isCorrect) tally.correct++; else tally.incorrect++;
+  saveTally(sessionId, tally);
+}
+
+function showScoreView() {
+  scoreCorrectEl.textContent = tally.correct;
+  scoreIncorrectEl.textContent = tally.incorrect;
+  scoreCloseNote.classList.add('hidden');
+  showView('score');
+  // The player doc is gone along with the rest of the session, so this id
+  // is dead — but keep the tally in localStorage (not cleared here) so
+  // reopening the tab later still shows the same score instead of nothing.
+  clearLocalPlayer(sessionId);
+}
+
+btnCloseScore.addEventListener('click', () => {
+  window.close();
+  // Most browsers block script-closing a tab the user navigated to directly
+  // (as opposed to one opened via window.open) — if we're still here a
+  // moment later, tell them to close it themselves instead of doing nothing.
+  setTimeout(() => scoreCloseNote.classList.remove('hidden'), 300);
+});
 
 async function getSubmission(round) {
   const snap = await getDoc(doc(db, 'sessions', sessionId, 'rounds', String(round), 'submissions', playerId));
